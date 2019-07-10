@@ -1,0 +1,41 @@
+{
+    "parserOptions": {
+        "ecmaVersion": 2018,
+        "ecmaFeatures": {
+            "jsx": true
+        },
+        "sourceType": "module"
+    },
+
+    "settings": {
+        "react": {
+            "version": "16.0"
+        }
+    },
+
+    "plugins": [
+        "react"
+    ],
+
+    "extends": [
+        "standard-jsx", "standard-react"
+    ],
+
+    "rules": {
+        "indent": [1, 4, { "SwitchCase": 1 } ],
+        "react/jsx-no-bind": [2, {
+            "allowArrowFunctions": true,
+            "allowBind": false,
+            "ignoreRefs": true
+        }],
+        "jsx-quotes": [2, "prefer-double"],
+        "react/no-did-update-set-state": 2,
+        "react/no-unknown-property": 2,
+        "react/no-unused-prop-types": 2,
+        "react/prop-types": 2,
+        "react/react-in-jsx-scope": 2,
+        "react/jsx-indent": [1, 4],
+        "react-hooks/rules-of-hooks": 2,
+        "react-hooks/exhaustive-deps": 1
+    }
+}
