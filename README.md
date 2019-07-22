@@ -1,5 +1,3 @@
-This is a coding test for position of frontend developer in Zeiss
-
 ## Objectives
 
 Prototypical solution for displaying the collected data to our test users inside of a web browser.
@@ -86,3 +84,5 @@ const channel = socket.channel("events", {});
 channel.join();
 channel.on("new", event => console.log(event));
 ```
+___
+*toDo* remove HealthCheck and auto update list based on WebSocket events
