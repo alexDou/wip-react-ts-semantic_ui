@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 import { BrowserRouter as Router, Route, Switch, Redirect } from 'react-router-dom';
 
 /** top level component */
-import HealthCheck from './components/HealthCheck';
+import MachineContext, { socket, channel } from './components/MachineContext';
 
 /** views */
 import Home from './pages/home';
@@ -13,10 +13,7 @@ import Machine from './pages/machine';
 /** application */
 const App = () => {
     return (
-        <>
-            {/* health check info available across the app */}
-            <HealthCheck />
-            {/*router*/}
+        <MachineContext.Provider value={{ socket, channel }}>
             <Router>
                 <Switch>
                     <Route path="/" exact component={ Home } />
@@ -25,12 +22,11 @@ const App = () => {
                     <Redirect to="/" />
                 </Switch>
             </Router>
-        </>
-    )
+        </MachineContext.Provider>
+    );
 };
 
 ReactDOM.render(
   <App />,
   document.getElementById('root')
 );
-

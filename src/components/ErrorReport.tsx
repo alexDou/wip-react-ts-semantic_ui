@@ -1,7 +1,7 @@
 import React from 'react';
-import { ErrorProps } from "../types";
 import { Segment } from 'semantic-ui-react';
 
+import { ErrorProps } from "../types";
 
 function Error(props: ErrorProps) {
     return (

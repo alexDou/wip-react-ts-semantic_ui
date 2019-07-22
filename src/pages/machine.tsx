@@ -1,39 +1,49 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { RouteComponentProps } from 'react-router-dom';
 import { Header, Card, Segment, Button } from 'semantic-ui-react';
 
 import API from '../api/endpoints';
 import { renderError, renderColor } from '../utils';
 import { MachineProps, OverviewItem } from '../types';
+import MachineContext, {channel} from "../components/MachineContext";
 
 // API endpoint for this view
 const machine_details_endpoint = `https://${API.url}${API.machine}`;
 
 function Machine(props: RouteComponentProps<MachineProps>): JSX.Element {
+    const { channel } = useContext(MachineContext);
     const [machine, setMachine] = useState<OverviewItem | undefined>(undefined);
     const [error, setError] = useState<null | string>(null);
 
-    // toDo: move to transport
     const getMachineDetails = async () => {
         try {
             const response = await fetch(
               machine_details_endpoint.replace(/\{[^\}]+\}/, props.match.params.id)
             );
 
-            const json = await response.json();
-            setMachine(json.data);
+            return await response.json();
         } catch (e) {
             setError(e.message);
         }
     }
 
-    /** initial fetch and
-        update machine info each 10 sec */
+    /** initial fetch */
     useEffect(() => {
-        setTimeout(getMachineDetails, 0);
-        const interval = setInterval(getMachineDetails, 10000);
+        getMachineDetails()
+          .then(res => setMachine(res.data))
+          .catch(e => {
+              setError(e.message);
+          });
+    });
 
-        return () => clearInterval(interval);
+    useEffect(() => {
+        channel.on('new', (event: OverviewItem): void => {
+            if (machine && machine.id === event.id) {
+                machine.status = event.status;
+                machine.last_maintenance = event.last_maintenance;
+            }
+            setMachine(event)
+        });
     }, []);
 
     const renderMachine = () => {

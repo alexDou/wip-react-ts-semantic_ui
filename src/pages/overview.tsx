@@ -1,17 +1,21 @@
-import React, { useState, useEffect } from 'react';
+import React, {useState, useEffect, useContext} from 'react';
 import { Card, Message } from 'semantic-ui-react';
 import { Link } from 'react-router-dom';
 
 import API from '../api/endpoints';
 import { renderError, renderColor } from '../utils';
 import { OverviewItem } from '../types';
+import MachineContext, {channel} from "../components/MachineContext";
 
 // API endpoint for this view
 const machines_endpoint = `https://${API.url}${API.root}`;
 
 function Overview(): JSX.Element {
-    const [events, setEvents] = useState<Array<OverviewItem>>([]);
+    const { channel } = useContext(MachineContext);
+    const [machines, setMachines] = useState<Array<OverviewItem>>([]);
     const [error, setError] = useState<null | string>(null);
+
+    let machinesCopy: Array<OverviewItem> = [];
 
     // toDo: move to transport
     const getMachines = async () => {
@@ -20,8 +24,7 @@ function Overview(): JSX.Element {
               machines_endpoint
             );
 
-            const json = await response.json();
-            setEvents(json.data);
+            return await response.json();
         } catch (e) {
             setError(e.message);
         }
@@ -30,19 +33,55 @@ function Overview(): JSX.Element {
     /** initial fetch and
         update machines each 10 sec */
     useEffect(() => {
-        setTimeout(getMachines, 0);
-        const interval = setInterval(getMachines, 10000);
+        getMachines()
+          .then(res => {
+              setMachines(res.data);
+              machinesCopy = res.data;
+          })
+          .catch(e => {
+              setError(e.message);
+          });
+    }, []);
 
-        return () => clearInterval(interval);
+    /** subscribe to machine state update */
+    useEffect(() => {
+        channel.on('new', (event: any): void => {
+            // change event
+            // const mach = machinesCopy.map(m => {
+            //     console.log(m.id, ' === ', event.id)
+            //     if (m.id === event.id) {
+            //         m.status = event.status;
+            //         m.last_maintenance = event.last_maintenance;
+            //     }
+            //
+            //     return m;
+            // });
+
+            // new event
+            event.machine_type = event.machine_type || 'new Machine';
+            machinesCopy = [event, ...machinesCopy];
+            setMachines(machinesCopy);
+
+            // fetch again
+            // getMachines()
+            //   .then(res => {
+            //       console.log('new', res.data)
+            //       setMachines(res.data);
+            //       machinesCopy = res.data;
+            //   })
+            //   .catch(e => {
+            //       setError(e.message);
+            //   });
+        });
     }, []);
 
     /** render all machines once they available */
     // toDo: add Dimmer
     const renderMachines = () => {
         return (
-        events.length && events[0].status ?
+        machines.length && machines[0].status ?
             <Card.Group centered style={{marginTop: '20px'}}>
-            {events.map(ev =>
+            {machines.map(ev =>
                 <Card color={renderColor(ev.status)} key={ev.id}>
                     <Card.Content>
                         <Card.Header>{ev.machine_type}</Card.Header>
