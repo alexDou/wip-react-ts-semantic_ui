@@ -1,10 +1,3 @@
-export type HealthCheckEvent = {
-    timestamp: string,
-    status: string,
-    machine_id: string,
-    id: string
-}
-
 export type MachineProps = {
     id: string
 }
@@ -17,7 +10,8 @@ export interface OverviewItem {
     last_maintenance: string,
     install_date: string,
     id: string,
-    floor: number
+    floor: number,
+    new?: boolean
 };
 
 export type ErrorProps = {

@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 import API from '../api/endpoints';
 import { renderError, renderColor } from '../utils';
 import { OverviewItem } from '../types';
-import MachineContext, {channel} from "../components/MachineContext";
+import MachineContext from "../components/MachineContext";
 
 // API endpoint for this view
 const machines_endpoint = `https://${API.url}${API.root}`;
@@ -59,6 +59,7 @@ function Overview(): JSX.Element {
 
             // new event
             event.machine_type = event.machine_type || 'new Machine';
+            event.new = true;
             machinesCopy = [event, ...machinesCopy];
             setMachines(machinesCopy);
 
@@ -96,7 +97,9 @@ function Overview(): JSX.Element {
                         </Card.Description>
                     </Card.Content>
                     <Card.Content extra>
-                        <Link to={`/machine/${ev.id}`}>Details</Link>
+                        {ev.new
+                            ? <></>
+                            : <Link to={`/machine/${ev.id}`}>Details</Link>}
                     </Card.Content>
                 </Card>
             )}
