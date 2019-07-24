@@ -68,9 +68,7 @@ A speciality is the live connection which allows receiving a soft-realtime event
 }
 ```
 
-The status can be either idle, running, finished or errorred in which case they will be repaired automatically and a repaired event will be sent before resetting to idle again.
-
-Your colleague has recommended the *phoenix* npm module to connect with the backend and has provided you with the following sample code:
+*phoenix* npm module responsible to connect with the backend and has provided you with the following sample code:
 
 ```code
 import { Socket } from "phoenix";
