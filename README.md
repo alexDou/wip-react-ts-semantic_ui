@@ -84,5 +84,3 @@ const channel = socket.channel("events", {});
 channel.join();
 channel.on("new", event => console.log(event));
 ```
-___
-*toDo* remove HealthCheck and auto update list based on WebSocket events
