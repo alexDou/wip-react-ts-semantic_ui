@@ -25,11 +25,18 @@ const cardStyle = style({
 class Projects extends Component<AppState & ProjectsProps & RouteComponentProps, AppState> {
 
     componentDidMount(): void {
-        const { session, repos, getSearch } = this.props;
+        const { session, repos, getSearch, setPage, setPerPage, history } = this.props;
 
+        const pageNum = repos.page || 1;
+
+        // check to see if there are data to display on this page
+        const startIdx: number = pageNum * apiConfig.defaults.per_page - apiConfig.defaults.per_page;
         const query = repos.query || '';
 
-        if (!session.pending && repos.shouldFetch) {
+        const count = repos!.repos!.total_count! || 0;
+        if (count && count < startIdx || !count && pageNum > 1) {
+            history.push(`${repos!.query!.length ? '/projects' : '/'}`);
+        } else if (repos!.query!.length && !repos!.repos!.items) {
             getSearch(query, 1);
         }
     }
@@ -42,19 +49,16 @@ class Projects extends Component<AppState & ProjectsProps & RouteComponentProps,
         // const itemId = this.props.repos.repos!.items && this.props.repos.repos!.items![0].id;
 
         // eslint-disable-next-line no-console
-        console.log(
-            'SH OK',
-            nextProps.repos.query !== this.props.repos.query
+        console.log('SH', nextProps.repos.query !== this.props.repos.query
             || nextProps.repos.page !== this.props.repos.page
-            || nextProps.repos.per_page !== this.props.repos.per_page
-            || nextProps.session.ok !== this.props.session.ok
-        )
+            || nextProps.repos.repos!.total_count !== this.props.repos.repos!.total_count)
+        // eslint-disable-next-line no-console
+        console.log('SH', nextProps.session, this.props.session)
         return (
             nextProps.repos.query !== this.props.repos.query
             || nextProps.repos.page !== this.props.repos.page
-            || nextProps.repos.per_page !== this.props.repos.per_page
-            || nextProps.session.ok !== this.props.session.ok
-            // || nextItemId !== itemId
+            || nextProps.repos.repos!.total_count !== this.props.repos.repos!.total_count
+            //|| nextItemId !== itemId
         );
     }
 
@@ -63,27 +67,24 @@ class Projects extends Component<AppState & ProjectsProps & RouteComponentProps,
         prevState: Readonly<AppState>, snapshot?: any
     ): void {
         const { session, repos, getSearch, setPerPage } = this.props;
-
+        // eslint-disable-next-line no-console
+        console.log('PRE DID')
         // get data to display from API
         if (!session.pending && repos.shouldFetch) {
-            const query = repos.query || '';
-            getSearch(query, repos.page || 1);
-
             // how many needs to be fetched to cover this page
-            // const pageNum = repos.page || 1;
-            // let per_page = 10;
-            // if (repos!.repos!.items! && repos!.repos!.items!.length) {
-            //     per_page = pageNum * apiConfig.defaults.per_page - repos!.repos!.items!.length;
-            // }
-            //
-            // if (per_page !== repos.per_page) {
-            //     setPerPage(per_page);
-            // }
-            //
-            // const query = repos.query || '';
-            // if (query && query.length) {
-            //     getSearch(query, repos.page || 1);
-            // }
+            const pageNum = repos.page || 1;
+            let per_page = 10;
+            if (repos!.repos!.items! && repos!.repos!.items!.length) {
+                per_page = pageNum * apiConfig.defaults.per_page - repos!.repos!.items!.length;
+            }
+
+            // eslint-disable-next-line no-console
+            console.log('DID')
+            const query = repos.query || '';
+            if (query && query.length) {
+                setPerPage(per_page);
+                getSearch(query, repos.page || 1);
+            }
         }
     }
 
@@ -163,10 +164,8 @@ class Projects extends Component<AppState & ProjectsProps & RouteComponentProps,
                         Matching repositories
                     </Header>
                 </Divider>
-                <Responsive as={Container}>
-                    {this.displayItems()}
-                    <StatusReport { ...session } />
-                </Responsive>
+                {this.displayItems()}
+                <StatusReport { ...session } />
                 <Footer
                     pages={repos!.repos!.total_count || 0}
                     active={pageNum}
@@ -178,7 +177,10 @@ class Projects extends Component<AppState & ProjectsProps & RouteComponentProps,
     }
 }
 
-const mapStateToProps = (state: AppState) => state;
+const mapStateToProps = (state: AppState) => ({
+    ...state,
+    display: []
+});
 
 const mapDispatchToProps = (dispatch: ThunkActionCreate) => {
     return {

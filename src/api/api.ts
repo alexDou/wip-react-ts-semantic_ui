@@ -20,9 +20,6 @@ const requests: SearchRepositories = {
         const reqUrl = `${config.q}=${query}${config.sort}=${orderBy}${config.page}=${page}${config.per_page}=${per_page}`;
         const url = `${config.apiBaseUrl}${config.repos}` + encodeURI(reqUrl);
 
-        // eslint-disable-next-line no-console
-        console.log('XXXXXXXXX')
-
         return transport.get(url);
     }
 };

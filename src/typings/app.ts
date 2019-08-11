@@ -56,6 +56,7 @@ export type TRepos = {
 }
 
 export type SearchState = {
+    mutation?: number;
     query?: string;
     repos?: TRepos;
     page?: number;

@@ -3,6 +3,7 @@ import { SearchState, SearchAction } from '@t/app';
 import apiConfig from '@api/api.config';
 
 const initialState: SearchState = {
+    mutation: 1,
     query: '',
     repos: {},
     page: 1,
