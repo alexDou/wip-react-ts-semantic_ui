@@ -15,7 +15,16 @@
         "noImplicitAny": true,
         "strict": true,
         "forceConsistentCasingInFileNames": true,
-        "noEmitOnError": true
+        "noEmitOnError": true,
+        "baseUrl": ".",
+        "paths": {
+            "@api/*": ["./src/api/*"],
+            "@components/*": ["./src/components/*"],
+            "@containers/*": ["./src/containers/*"],
+            "@t/*": ["./src/typings/*"],
+            "@helpers/*": ["./src/helpers/*"],
+            "@store/*": ["./src/store/*"]
+        }
     },
     "include": [
         "src"
