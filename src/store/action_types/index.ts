@@ -1,7 +1,6 @@
 // Search
 export const CALL_SEARCH = 'CALL_SEARCH';
 export const TURN_PAGE = 'TURN_PAGE';
-export const PER_PAGE = 'PER_PAGE';
 export const FIND_QUERY = 'FIND_QUERY';
 
 // Session

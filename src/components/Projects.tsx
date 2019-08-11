@@ -3,11 +3,10 @@ import { compose } from 'redux';
 import { connect } from 'react-redux';
 import { RouteComponentProps, withRouter } from 'react-router-dom';
 import {
-    Segment, Container, Grid, Responsive, Header, Divider, Icon, Card, Image, Button
+    Segment, Container, Grid, Responsive, Header, Divider, Icon, Card, Image
 } from 'semantic-ui-react';
 import { style } from 'typestyle';
 
-import apiConfig from '@api/api.config';
 import { AppState, ProjectsProps, ThunkActionCreate } from '@t/app';
 import * as actions from '@store/actions';
 import SearchContainer from '@containers/search';
@@ -38,23 +37,12 @@ class Projects extends Component<AppState & ProjectsProps & RouteComponentProps,
         nextProps: Readonly<AppState & RouteComponentProps>,
         nextState: Readonly<AppState>, nextContext: any
     ): boolean {
-        // const nextItemId = nextProps.repos.repos!.items && nextProps.repos.repos!.items![0].id;
-        // const itemId = this.props.repos.repos!.items && this.props.repos.repos!.items![0].id;
 
-        // eslint-disable-next-line no-console
-        console.log(
-            'SH OK',
-            nextProps.repos.query !== this.props.repos.query
-            || nextProps.repos.page !== this.props.repos.page
-            || nextProps.repos.per_page !== this.props.repos.per_page
-            || nextProps.session.ok !== this.props.session.ok
-        )
         return (
             nextProps.repos.query !== this.props.repos.query
             || nextProps.repos.page !== this.props.repos.page
             || nextProps.repos.per_page !== this.props.repos.per_page
             || nextProps.session.ok !== this.props.session.ok
-            // || nextItemId !== itemId
         );
     }
 
@@ -62,28 +50,14 @@ class Projects extends Component<AppState & ProjectsProps & RouteComponentProps,
         prevProps: Readonly<AppState & ProjectsProps & RouteComponentProps>,
         prevState: Readonly<AppState>, snapshot?: any
     ): void {
-        const { session, repos, getSearch, setPerPage } = this.props;
+        const { session, repos, getSearch } = this.props;
+
+        const pageNum = repos.page || 1;
+        const query = repos.query || '';
 
         // get data to display from API
-        if (!session.pending && repos.shouldFetch) {
-            const query = repos.query || '';
-            getSearch(query, repos.page || 1);
-
-            // how many needs to be fetched to cover this page
-            // const pageNum = repos.page || 1;
-            // let per_page = 10;
-            // if (repos!.repos!.items! && repos!.repos!.items!.length) {
-            //     per_page = pageNum * apiConfig.defaults.per_page - repos!.repos!.items!.length;
-            // }
-            //
-            // if (per_page !== repos.per_page) {
-            //     setPerPage(per_page);
-            // }
-            //
-            // const query = repos.query || '';
-            // if (query && query.length) {
-            //     getSearch(query, repos.page || 1);
-            // }
+        if (!session.pending && repos.shouldFetch && !repos.display[pageNum] && query) {
+            getSearch(query, pageNum);
         }
     }
 
@@ -91,17 +65,12 @@ class Projects extends Component<AppState & ProjectsProps & RouteComponentProps,
         const { session, repos } = this.props;
 
         const pageNum = repos.page || 1;
-
-        const endIdx = pageNum * apiConfig.defaults.per_page;
-        const startIdx = endIdx - apiConfig.defaults.per_page;
-        const items = repos!.repos!.items
-            ? repos!.repos!.items.slice(startIdx, endIdx)
-            : [];
+        const items = repos.display[pageNum] || [];
 
         return (session.ok ?
             <Segment color={items.length ? 'green' : 'grey'}>
                 <Grid celled="internally" stackable columns={3}>
-                    {items.map(it =>
+                    {items.map((it: any) =>
                         <Grid.Column key={it.id}>
                             <Card centered className={cardStyle}>
                                 <Card.Content>
@@ -184,7 +153,6 @@ const mapDispatchToProps = (dispatch: ThunkActionCreate) => {
     return {
         getSearch: (query: string, page: number) => dispatch(actions.repos.getSearch(query, page)),
         setPage: (page: number, shouldFetch: boolean) => dispatch(actions.repos.setPage(page, shouldFetch)),
-        setPerPage: (per_page: number) => dispatch(actions.repos.setPerPage(per_page)),
     };
 };
 

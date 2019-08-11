@@ -6,12 +6,26 @@ import apiConfig from '@api/api.config';
 import { TFooterProps } from '@t/app';
 
 const footerStyle = style({
-    position: 'fixed',
-    left: '0px',
-    bottom: '0px',
-    padding: '2em 0 2em 4em',
-    width: '100%',
+    $nest: {
+        '&.ui.container': {
+            display: 'flex',
+            alignItems: 'center',
+            position: 'fixed',
+            left: '0px',
+            bottom: '0px',
+            padding: '2em 0 2em 4em',
+            width: '100%',
+        }
+    }
 });
+
+const footerPaginationStyle = style({
+    $nest: {
+        '&.ui.pagination.menu': {
+            margin: '0 auto'
+        }
+    }
+})
 
 const Footer = ({ pages, active, pageChange }: TFooterProps) => {
 
@@ -25,6 +39,7 @@ const Footer = ({ pages, active, pageChange }: TFooterProps) => {
     return (total ?
         <Container className={footerStyle}>
             <Pagination
+                className={footerPaginationStyle}
                 defaultActivePage={active}
                 totalPages={total}
                 onPageChange={handlePageChange}

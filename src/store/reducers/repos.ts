@@ -3,7 +3,7 @@ import { SearchState, SearchAction } from '@t/app';
 import apiConfig from '@api/api.config';
 
 const initialState: SearchState = {
-    mutation: 1,
+    display: {},
     query: '',
     repos: {},
     page: 1,
@@ -12,6 +12,22 @@ const initialState: SearchState = {
 };
 
 export default reducer(initialState, {
+    ['CALL_SEARCH']: (state: SearchState, action: SearchAction) => {
+        const displayItems = action.payload.repos! && action.payload.repos!.items;
+        let display = {};
+        if (displayItems) {
+            display = Object.assign(
+                state.display,
+                { [action.payload.page as number]: displayItems }
+            );
+        }
+
+        return {
+            ...display,
+            ...state,
+            ...action.payload
+        };
+    },
     ['DEFAULT']: (state: SearchState, action: SearchAction) => {
         return {
             ...state,

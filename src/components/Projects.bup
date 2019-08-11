@@ -25,18 +25,11 @@ const cardStyle = style({
 class Projects extends Component<AppState & ProjectsProps & RouteComponentProps, AppState> {
 
     componentDidMount(): void {
-        const { session, repos, getSearch, setPage, setPerPage, history } = this.props;
+        const { session, repos, getSearch } = this.props;
 
-        const pageNum = repos.page || 1;
-
-        // check to see if there are data to display on this page
-        const startIdx: number = pageNum * apiConfig.defaults.per_page - apiConfig.defaults.per_page;
         const query = repos.query || '';
 
-        const count = repos!.repos!.total_count! || 0;
-        if (count && count < startIdx || !count && pageNum > 1) {
-            history.push(`${repos!.query!.length ? '/projects' : '/'}`);
-        } else if (repos!.query!.length && !repos!.repos!.items) {
+        if (!session.pending && repos.shouldFetch) {
             getSearch(query, 1);
         }
     }
@@ -45,20 +38,12 @@ class Projects extends Component<AppState & ProjectsProps & RouteComponentProps,
         nextProps: Readonly<AppState & RouteComponentProps>,
         nextState: Readonly<AppState>, nextContext: any
     ): boolean {
-        // const nextItemId = nextProps.repos.repos!.items && nextProps.repos.repos!.items![0].id;
-        // const itemId = this.props.repos.repos!.items && this.props.repos.repos!.items![0].id;
 
-        // eslint-disable-next-line no-console
-        console.log('SH', nextProps.repos.query !== this.props.repos.query
-            || nextProps.repos.page !== this.props.repos.page
-            || nextProps.repos.repos!.total_count !== this.props.repos.repos!.total_count)
-        // eslint-disable-next-line no-console
-        console.log('SH', nextProps.session, this.props.session)
         return (
             nextProps.repos.query !== this.props.repos.query
             || nextProps.repos.page !== this.props.repos.page
-            || nextProps.repos.repos!.total_count !== this.props.repos.repos!.total_count
-            //|| nextItemId !== itemId
+            || nextProps.repos.per_page !== this.props.repos.per_page
+            || nextProps.session.ok !== this.props.session.ok
         );
     }
 
@@ -66,25 +51,14 @@ class Projects extends Component<AppState & ProjectsProps & RouteComponentProps,
         prevProps: Readonly<AppState & ProjectsProps & RouteComponentProps>,
         prevState: Readonly<AppState>, snapshot?: any
     ): void {
-        const { session, repos, getSearch, setPerPage } = this.props;
-        // eslint-disable-next-line no-console
-        console.log('PRE DID')
-        // get data to display from API
-        if (!session.pending && repos.shouldFetch) {
-            // how many needs to be fetched to cover this page
-            const pageNum = repos.page || 1;
-            let per_page = 10;
-            if (repos!.repos!.items! && repos!.repos!.items!.length) {
-                per_page = pageNum * apiConfig.defaults.per_page - repos!.repos!.items!.length;
-            }
+        const { session, repos, getSearch } = this.props;
 
-            // eslint-disable-next-line no-console
-            console.log('DID')
-            const query = repos.query || '';
-            if (query && query.length) {
-                setPerPage(per_page);
-                getSearch(query, repos.page || 1);
-            }
+        const pageNum = repos.page || 1;
+        const query = repos.query || '';
+
+        // get data to display from API
+        if (!session.pending && repos.shouldFetch && !repos.display[pageNum] && query) {
+            getSearch(query, pageNum);
         }
     }
 
@@ -92,17 +66,12 @@ class Projects extends Component<AppState & ProjectsProps & RouteComponentProps,
         const { session, repos } = this.props;
 
         const pageNum = repos.page || 1;
-
-        const endIdx = pageNum * apiConfig.defaults.per_page;
-        const startIdx = endIdx - apiConfig.defaults.per_page;
-        const items = repos!.repos!.items
-            ? repos!.repos!.items.slice(startIdx, endIdx)
-            : [];
+        const items = repos.display[pageNum] || [];
 
         return (session.ok ?
             <Segment color={items.length ? 'green' : 'grey'}>
                 <Grid celled="internally" stackable columns={3}>
-                    {items.map(it =>
+                    {items.map((it: any) =>
                         <Grid.Column key={it.id}>
                             <Card centered className={cardStyle}>
                                 <Card.Content>
@@ -164,8 +133,10 @@ class Projects extends Component<AppState & ProjectsProps & RouteComponentProps,
                         Matching repositories
                     </Header>
                 </Divider>
-                {this.displayItems()}
-                <StatusReport { ...session } />
+                <Responsive as={Container}>
+                    {this.displayItems()}
+                    <StatusReport { ...session } />
+                </Responsive>
                 <Footer
                     pages={repos!.repos!.total_count || 0}
                     active={pageNum}
@@ -177,16 +148,13 @@ class Projects extends Component<AppState & ProjectsProps & RouteComponentProps,
     }
 }
 
-const mapStateToProps = (state: AppState) => ({
-    ...state,
-    display: []
-});
+const mapStateToProps = (state: AppState) => state;
 
 const mapDispatchToProps = (dispatch: ThunkActionCreate) => {
     return {
         getSearch: (query: string, page: number) => dispatch(actions.repos.getSearch(query, page)),
         setPage: (page: number, shouldFetch: boolean) => dispatch(actions.repos.setPage(page, shouldFetch)),
-        setPerPage: (per_page: number) => dispatch(actions.repos.setPerPage(per_page)),
+
     };
 };
 

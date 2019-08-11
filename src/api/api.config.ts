@@ -9,7 +9,7 @@ const apiConfig: APIConfig = {
     page: '&page',
     defaults: {
         sort: 'starts&order=desc',
-        per_page: 4
+        per_page: 10
     }
 };
 

@@ -2,7 +2,6 @@ import React from 'react';
 import { AnyAction, ActionCreator, Dispatch, Action } from 'redux';
 import { ThunkAction } from 'redux-thunk';
 import { SemanticSIZES, SemanticCOLORS } from 'semantic-ui-react'
-import { RouteComponentProps } from 'react-router-dom';
 
 export type APIConfig = {
     apiBaseUrl: string;
@@ -56,7 +55,7 @@ export type TRepos = {
 }
 
 export type SearchState = {
-    mutation?: number;
+    display?: any;
     query?: string;
     repos?: TRepos;
     page?: number;
@@ -65,7 +64,7 @@ export type SearchState = {
 }
 
 export interface SearchAction {
-    payload: SessionState;
+    payload: SearchState;
 }
 
 export interface AppState {
@@ -74,7 +73,6 @@ export interface AppState {
     getSearch(query: string, page: number): TDispatch;
     setSearchQuery(query: string): TDispatch;
     setPage(page: number, shouldFetch: boolean): TDispatch;
-    setPerPage(per_page: number): TDispatch;
 }
 
 export interface ProjectsProps {
