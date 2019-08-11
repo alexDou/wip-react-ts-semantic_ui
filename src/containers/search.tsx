@@ -16,10 +16,8 @@ class SearchContainer extends Component<AppState & SearchProps & RouteComponentP
     };
 
     onFormSubmit = (searchQ: string) => {
-        const { repos, setSearchQuery, setPage } = this.props;
-        // if (repos.page !== 1) {
-        //     setPage(1, true);
-        // }
+        const { setSearchQuery } = this.props;
+
         setSearchQuery(searchQ);
 
         this.props.history.push('/projects');

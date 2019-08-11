@@ -3,7 +3,7 @@ import { compose } from 'redux';
 import { connect } from 'react-redux';
 import { RouteComponentProps, withRouter } from 'react-router-dom';
 import {
-    Segment, Container, Grid, Responsive, Header, Divider, Icon, Card, Image
+    Segment, Container, Grid, Responsive, Header, Divider, Icon, Card, Image, Message
 } from 'semantic-ui-react';
 import { style } from 'typestyle';
 
@@ -20,6 +20,14 @@ const cardStyle = style({
         },
     }
 });
+
+const segmentStyle = style({
+    $nest: {
+        '&.ui.segment': {
+            marginBottom: '120px'
+        }
+    }
+})
 
 class Projects extends Component<AppState & ProjectsProps & RouteComponentProps, AppState> {
 
@@ -55,7 +63,7 @@ class Projects extends Component<AppState & ProjectsProps & RouteComponentProps,
         const pageNum = repos.page || 1;
         const query = repos.query || '';
 
-        // get data to display from API
+        // get data to display from REST API
         if (!session.pending && repos.shouldFetch && !repos.display[pageNum] && query) {
             getSearch(query, pageNum);
         }
@@ -66,32 +74,36 @@ class Projects extends Component<AppState & ProjectsProps & RouteComponentProps,
 
         const pageNum = repos.page || 1;
         const items = repos.display[pageNum] || [];
+        const notFound = repos.repos.total_count === 0;
 
         return (session.ok ?
             <Segment color={items.length ? 'green' : 'grey'}>
-                <Grid celled="internally" stackable columns={3}>
-                    {items.map((it: any) =>
-                        <Grid.Column key={it.id}>
-                            <Card centered className={cardStyle}>
-                                <Card.Content>
-                                    <Image floated="right" size="mini" src={it.owner.avatar_url} />
-                                    <Card.Header as="a" href={it.owner.url}>
-                                        {it.full_name.length < 25
-                                            ? it.full_name
-                                            : `${it.full_name.substr(0, 25)}...`}
-                                    </Card.Header>
-                                    <Card.Meta>{it.language}</Card.Meta>
-                                    <Card.Description>
-                                        Owner: <strong>{it.owner.login}</strong>
-                                    </Card.Description>
-                                    <Card.Description>
-                                        Stars: <strong>{it.stargazers_count}</strong>
-                                    </Card.Description>
-                                </Card.Content>
-                            </Card>
-                        </Grid.Column>
-                    )}
-                </Grid>
+                {notFound ? <Message color="red" content="No repos found by this query" /> : '' }
+                <Responsive>
+                    <Grid celled="internally" stackable columns={3}>
+                        {items.map((it: any) =>
+                            <Grid.Column key={it.id}>
+                                <Card centered className={cardStyle}>
+                                    <Card.Content>
+                                        <Image floated="right" size="mini" src={it.owner.avatar_url} />
+                                        <Card.Header as="a" href={it.owner.html_url}>
+                                            {it.full_name.length < 25
+                                                ? it.full_name
+                                                : `${it.full_name.substr(0, 25)}...`}
+                                        </Card.Header>
+                                        <Card.Meta>{it.language}</Card.Meta>
+                                        <Card.Description>
+                                            Owner: <strong>{it.owner.login}</strong>
+                                        </Card.Description>
+                                        <Card.Description>
+                                            Stars: <strong>{it.stargazers_count}</strong>
+                                        </Card.Description>
+                                    </Card.Content>
+                                </Card>
+                            </Grid.Column>
+                        )}
+                    </Grid>
+                </Responsive>
             </Segment>
             : <></>
         )
@@ -109,7 +121,7 @@ class Projects extends Component<AppState & ProjectsProps & RouteComponentProps,
         const pageNum = repos.page || 1;
 
         return (
-            <>
+            <Segment className={segmentStyle}>
                 <Divider horizontal>
                     <Header as="h4">
                         <Icon name="search" />
@@ -142,7 +154,7 @@ class Projects extends Component<AppState & ProjectsProps & RouteComponentProps,
                     pageChange={this.handlePageChange}
                     {...session}
                 />
-            </>
+            </Segment>
         );
     }
 }

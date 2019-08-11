@@ -23,9 +23,9 @@ export default reducer(initialState, {
         }
 
         return {
-            ...display,
             ...state,
-            ...action.payload
+            ...action.payload,
+            display
         };
     },
     ['DEFAULT']: (state: SearchState, action: SearchAction) => {

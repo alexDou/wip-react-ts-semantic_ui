@@ -1,4 +1,4 @@
-import { TDispatch, ActionType, ActionCreate, ThunkActionCreate } from '@t/app';
+import { TDispatch, ActionType, ThunkActionCreate } from '@t/app';
 import { api } from '@api/index';
 import { session } from './';
 import { CALL_SEARCH, FIND_QUERY, TURN_PAGE } from '../action_types';
@@ -10,13 +10,19 @@ const getSearch: ThunkActionCreate = (query: string, page: number) => {
             dispatch(session.pending());
             const response: any = await api.search_repos(query, page);
 
+            const payload: {page: number; repos: any; shouldFetch: boolean; display?: any} = {
+                page,
+                repos: response.data,
+                shouldFetch: false
+            }
+
+            if (response.data.total_count === 0) {
+                payload.display = {}
+            }
+
             dispatch({
                 type: CALL_SEARCH,
-                payload: {
-                    page,
-                    repos: response.data,
-                    shouldFetch: false
-                }
+                payload
             });
             return dispatch(session.fulfilled());
         } catch (err) {
@@ -25,21 +31,17 @@ const getSearch: ThunkActionCreate = (query: string, page: number) => {
     };
 };
 
-const setSearchQuery: ActionCreate = (query: string) => {
-    return (dispatch: TDispatch): ActionType => {
-        return dispatch({
-            type: FIND_QUERY,
-            payload: { display: {}, query, repos: {}, shouldFetch: true }
-        });
+const setSearchQuery = (query: string) => {
+    return {
+        type: FIND_QUERY,
+        payload: { display: {}, page: 1, query, repos: {}, shouldFetch: true }
     };
 };
 
-const setPage: ActionCreate = (page: number, shouldFetch: boolean) => {
-    return (dispatch: TDispatch): ActionType => {
-        return dispatch({
-            type: TURN_PAGE,
-            payload: { page, shouldFetch }
-        });
+const setPage = (page: number, shouldFetch: boolean) => {
+    return {
+        type: TURN_PAGE,
+        payload: { page, shouldFetch }
     };
 };
 

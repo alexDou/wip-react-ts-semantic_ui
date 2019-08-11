@@ -15,6 +15,7 @@ const footerStyle = style({
             bottom: '0px',
             padding: '2em 0 2em 4em',
             width: '100%',
+            background: 'gainsboro'
         }
     }
 });
@@ -25,7 +26,7 @@ const footerPaginationStyle = style({
             margin: '0 auto'
         }
     }
-})
+});
 
 const Footer = ({ pages, active, pageChange }: TFooterProps) => {
 
@@ -33,10 +34,11 @@ const Footer = ({ pages, active, pageChange }: TFooterProps) => {
 
     const handlePageChange = (e: SyntheticEvent, d: PaginationProps) => {
         const turnPage = parseInt(`${d.activePage}`);
+
         pageChange(turnPage);
     }
 
-    return (total ?
+    return (total && total > 1 ?
         <Container className={footerStyle}>
             <Pagination
                 className={footerPaginationStyle}

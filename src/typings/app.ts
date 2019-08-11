@@ -48,16 +48,16 @@ export interface SessionAction {
     payload: SessionState;
 }
 
-export type TRepos = {
+export interface TRepos {
     total_count?: number;
     incomplete_results?: boolean;
     items?: any[];
 }
 
-export type SearchState = {
+export interface SearchState {
     display?: any;
     query?: string;
-    repos?: TRepos;
+    repos?: any;
     page?: number;
     per_page?: number;
     shouldFetch?: boolean;
